@@ -90,6 +90,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
+
     public void openRegisterView(View view){
         startActivity(new Intent(this, RegisterActivity.class));
     }
