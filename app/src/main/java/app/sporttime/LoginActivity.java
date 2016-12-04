@@ -94,9 +94,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         startActivity(new Intent(this, RegisterActivity.class));
     }
 
-    private void openMainActivity(String cookie){
-//        Intent mIntent = new Intent(this, MainActivity.class);
-//        mIntent.putExtra("SESSION_COOKIE", cookie);
-//        startActivity(mIntent);
+    private void openMainActivity(String login){
+        Intent mIntent = new Intent(this, MainActivity.class);
+        mIntent.putExtra("LOGIN", login);
+        startActivity(mIntent);
     }
 }

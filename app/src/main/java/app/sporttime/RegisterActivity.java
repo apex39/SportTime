@@ -104,5 +104,5 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         public void openRegisterView(View view){
             startActivity(new Intent(this, RegisterActivity.class));
         }
-    
+
 }
