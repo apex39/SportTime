@@ -2,10 +2,12 @@ package app.sporttime;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -24,7 +26,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     public static final String KEY_USERNAME = "username";
     public static final String KEY_PASSWORD = "password";
-
 
     private EditText editTextUsername;
     private EditText editTextPassword;
@@ -53,13 +54,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        if (response.equals("1")) {
+                        if (!response.equals("null")) {
                             openMainActivity(response);
                             Toast.makeText(LoginActivity.this,"Login Success!",Toast.LENGTH_SHORT).show();
-
                         } else {
-                            Toast.makeText(LoginActivity.this,"Login Failed".toString(),Toast.LENGTH_SHORT).show();
-
+                            Toast.makeText(LoginActivity.this,"Login Failed",Toast.LENGTH_SHORT).show();
                         }
                     }
                 },
@@ -76,7 +75,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 params.put(KEY_PASSWORD,password);
                 return params;
             }
-
         };
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -95,9 +93,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         startActivity(new Intent(this, RegisterActivity.class));
     }
 
-    private void openMainActivity(String login){
+    private void openMainActivity(String userId){
         Intent mIntent = new Intent(this, MainActivity.class);
-        mIntent.putExtra("LOGIN", login);
+        mIntent.putExtra("USER_ID", userId);
         startActivity(mIntent);
     }
 }

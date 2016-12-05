@@ -22,7 +22,7 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:id="@+id/radioButton" />
+            android:id="@+id/radioButton1" />
 
         <RadioButton
             android:text="Bieganie"
@@ -75,7 +75,6 @@
     <Chronometer
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:countDown="false"
         android:id="@+id/chronometer"
         android:textStyle="normal|bold"
         android:textSize="36sp"

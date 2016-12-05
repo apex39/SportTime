@@ -34,10 +34,11 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
         protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_register);
 
-            editTextUsername = (EditText) findViewById(R.id.editTextUsername);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_register);
+
+        editTextUsername = (EditText) findViewById(R.id.editTextUsername);
             editTextPassword1 = (EditText) findViewById(R.id.editTextPassword1);
             editTextPassword2 = (EditText) findViewById(R.id.editTextPassword2);
 
