@@ -1,9 +1,9 @@
 package app.sporttime;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
@@ -16,10 +16,19 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import app.sporttime.model.Record;
 
 public class MainActivity extends AppCompatActivity  implements View.OnClickListener {
 
@@ -27,10 +36,12 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     private static final String KEY_VALUE = "value";
     private static final String KEY_SPORT = "sport_id";
     private static final String ADD_RECORD_URL = "http://102657.panda5.pl/raw/add_record.php";
+    private static final String GET_RECORDS_URL = "http://102657.panda5.pl/raw/get_records.php";
     private Button buttonChronometer;
     private Chronometer chronometer;
     private String login;
     private RadioGroup sportsRadioGroup;
+    private LineChart chart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +50,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
         sportsRadioGroup = (RadioGroup) findViewById(R.id.radioGroup);
 
+        chart = (LineChart) findViewById(R.id.chart);
         buttonChronometer = (Button) findViewById(R.id.buttonChronometer);
         chronometer = (Chronometer) findViewById(R.id.chronometer);
         buttonChronometer.setOnClickListener(this);
@@ -81,7 +93,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 }
 
                 sendRecord(login, seconds, sportId);
-
+                getUserRecords(login);
             } else {
                 isChronometerRunning = true;
                 chronometer.setBase(SystemClock.elapsedRealtime()); //Liczymy od czasu startu systemu
@@ -123,5 +135,47 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(stringRequest);
+    }
+    private Record[] records;
+    private void getUserRecords(final String userId){
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, GET_RECORDS_URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        if (!response.equals("Null")) {
+                            Gson gson = new Gson() ;
+                            records = gson.fromJson(response,Record[].class);
+                            addRecordsToChart(records);
+                        } else {
+                            Toast.makeText(MainActivity.this,"Cannot reach records" ,Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(MainActivity.this,error.toString(),Toast.LENGTH_LONG).show();
+                    }
+                }){
+            @Override
+            protected Map<String,String> getParams(){
+                Map<String,String> params = new HashMap<>();
+                params.put(KEY_USER_ID,userId);
+                return params;
+            }
+        };
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        requestQueue.add(stringRequest);
+    }
+
+    private void addRecordsToChart(Record[] records) {
+        List<Entry> entries = new ArrayList<Entry>();
+        for (Record record : records) {
+            entries.add(new Entry(record.getDatetime(), record.getValue()));
+        }
+        LineDataSet dataSet = new LineDataSet(entries, "Sporty");
+        LineData lineData = new LineData(dataSet);
+        chart.setData(lineData);
+        chart.invalidate();
     }
 }
