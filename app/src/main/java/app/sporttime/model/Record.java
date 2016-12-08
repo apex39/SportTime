@@ -17,8 +17,10 @@ public class Record {
     public Float getValue() {
         return Float.valueOf(value);
     }
-
-    public Float getDatetime() {
+    public int getIntDatetime() {
+        return datetime;
+    }
+    public Float getFloatDatetime() {
         return Float.valueOf(datetime);
     }
 

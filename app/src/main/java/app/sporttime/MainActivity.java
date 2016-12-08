@@ -20,10 +20,12 @@ import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -60,11 +62,6 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     }
 
     boolean isChronometerRunning = false;
-
-    public void startChronometer(View v) {
-
-    }
-
     @Override
     public void onClick(View v) {
         if (v == buttonChronometer) {
@@ -169,13 +166,50 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
     }
 
     private void addRecordsToChart(Record[] records) {
-        List<Entry> entries = new ArrayList<Entry>();
+        List<Entry> entries1 = new ArrayList<Entry>();
+        List<Entry> entries2 = new ArrayList<Entry>();
+        List<Entry> entries3 = new ArrayList<Entry>();
+        List<Entry> entries4 = new ArrayList<Entry>();
+
+
+
+        int reference_timestamp = records[0].getIntDatetime();
+
         for (Record record : records) {
-            entries.add(new Entry(record.getDatetime(), record.getValue()));
+            switch (record.getSports_sport_id()) {
+                case 1:
+                    entries1.add(new Entry(record.getFloatDatetime() - reference_timestamp, record.getValue()));
+                    break;
+                case 2:
+                    entries2.add(new Entry(record.getFloatDatetime() - reference_timestamp, record.getValue()));
+                    break;
+                case 3:
+                    entries3.add(new Entry(record.getFloatDatetime() - reference_timestamp, record.getValue()));
+                    break;
+                case 4:
+                    entries4.add(new Entry(record.getFloatDatetime() - reference_timestamp, record.getValue()));
+                    break;
+            }
         }
-        LineDataSet dataSet = new LineDataSet(entries, "Sporty");
-        LineData lineData = new LineData(dataSet);
-        chart.setData(lineData);
-        chart.invalidate();
+        Map<String, List<Entry>> entries = new HashMap<>(4);
+        entries.put("Pływanie", entries1);
+        entries.put("Bieganie", entries2);
+        entries.put("Rower", entries3);
+        entries.put("Siłownia", entries4);
+
+
+        List<ILineDataSet> lineDataSets = new ArrayList<ILineDataSet>();
+        for(Iterator<Map.Entry<String, List<Entry>>> it = entries.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<String, List<Entry>> entry = it.next();
+            if(entry.getValue().isEmpty()) {
+                it.remove();
+            } else {
+                lineDataSets.add(new LineDataSet(entry.getValue(), entry.getKey()));
+            }
+        }
+
+            LineData lineData = new LineData(lineDataSets);
+            chart.setData(lineData);
+            chart.invalidate();
     }
 }
