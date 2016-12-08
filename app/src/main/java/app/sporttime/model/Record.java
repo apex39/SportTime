@@ -20,9 +20,6 @@ public class Record {
     public int getIntDatetime() {
         return datetime;
     }
-    public Float getFloatDatetime() {
-        return Float.valueOf(datetime);
-    }
 
     public int getSports_sport_id() {
         return sports_sport_id;

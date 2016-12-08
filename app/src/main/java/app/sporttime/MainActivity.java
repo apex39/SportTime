@@ -17,12 +17,17 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.gson.Gson;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -59,6 +64,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
         Intent intent = getIntent();
         login = intent.getStringExtra("USER_ID");
+        getUserRecords(login);
     }
 
     boolean isChronometerRunning = false;
@@ -139,12 +145,12 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        if (!response.equals("Null")) {
+                        if (!response.equals("[]")) {
                             Gson gson = new Gson() ;
                             records = gson.fromJson(response,Record[].class);
                             addRecordsToChart(records);
                         } else {
-                            Toast.makeText(MainActivity.this,"Cannot reach records" ,Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this,"No records available yet." ,Toast.LENGTH_SHORT).show();
                         }
                     }
                 },
@@ -171,23 +177,21 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
         List<Entry> entries3 = new ArrayList<Entry>();
         List<Entry> entries4 = new ArrayList<Entry>();
 
-
-
         int reference_timestamp = records[0].getIntDatetime();
 
         for (Record record : records) {
             switch (record.getSports_sport_id()) {
                 case 1:
-                    entries1.add(new Entry(record.getFloatDatetime() - reference_timestamp, record.getValue()));
+                    entries1.add(new Entry(record.getIntDatetime() - reference_timestamp, record.getValue()));
                     break;
                 case 2:
-                    entries2.add(new Entry(record.getFloatDatetime() - reference_timestamp, record.getValue()));
+                    entries2.add(new Entry(record.getIntDatetime()- reference_timestamp, record.getValue()));
                     break;
                 case 3:
-                    entries3.add(new Entry(record.getFloatDatetime() - reference_timestamp, record.getValue()));
+                    entries3.add(new Entry(record.getIntDatetime()- reference_timestamp, record.getValue()));
                     break;
                 case 4:
-                    entries4.add(new Entry(record.getFloatDatetime() - reference_timestamp, record.getValue()));
+                    entries4.add(new Entry(record.getIntDatetime()- reference_timestamp, record.getValue()));
                     break;
             }
         }
@@ -204,12 +208,49 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
             if(entry.getValue().isEmpty()) {
                 it.remove();
             } else {
-                lineDataSets.add(new LineDataSet(entry.getValue(), entry.getKey()));
+                LineDataSet lineDataSet = new LineDataSet(entry.getValue(), entry.getKey());
+
+                switch (entry.getKey()) {
+                    case "Pływanie":
+                        lineDataSet.setColor(ColorTemplate.JOYFUL_COLORS[0]);
+                        break;
+                    case "Bieganie":
+                        lineDataSet.setColor(ColorTemplate.JOYFUL_COLORS[1]);
+                        break;
+                    case "Rower":
+                        lineDataSet.setColor(ColorTemplate.JOYFUL_COLORS[2]);
+                        break;
+                    case "Siłownia":
+                        lineDataSet.setColor(ColorTemplate.JOYFUL_COLORS[3]);
+                        break;
+                }
+                lineDataSets.add(lineDataSet);
+
             }
         }
 
             LineData lineData = new LineData(lineDataSets);
+
+            XAxis xAxis = chart.getXAxis();
+            xAxis.setValueFormatter(new DateAxisValueFormatter(reference_timestamp));
+
+            xAxis.setGranularity(100f);
             chart.setData(lineData);
             chart.invalidate();
     }
+
+        public class DateAxisValueFormatter implements IAxisValueFormatter {
+            Integer referenceTimestamp;
+            SimpleDateFormat sdf;
+            public DateAxisValueFormatter(int referenceTimestamp) {
+                this.referenceTimestamp = referenceTimestamp;
+                 sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            }
+
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                return sdf.format(((int)value+referenceTimestamp)*1000L);
+            }
+        }
+
 }
